@@ -11,16 +11,24 @@ const Home = () => {
     fetchFeaturedProducts();
   }, []);
 
-  const fetchFeaturedProducts = async () => {
-    try {
-      const res = await axios.get('/api/products/featured');
+const fetchFeaturedProducts = async () => {
+  try {
+    const res = await axios.get('/api/products/featured');
+    
+    // Check if res.data is an array
+    if (Array.isArray(res.data)) {
       setFeaturedProducts(res.data);
-    } catch (error) {
-      console.error('Error fetching featured products:', error);
-    } finally {
-      setLoading(false);
+    } else {
+      console.error('Expected an array but got:', res.data);
+      setFeaturedProducts([]); // Fallback if response is not as expected
     }
-  };
+  } catch (error) {
+    console.error('Error fetching featured products:', error);
+    setFeaturedProducts([]); // Fallback on error
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <div className="home">
