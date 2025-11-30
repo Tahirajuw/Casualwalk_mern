@@ -26,7 +26,7 @@ const Products = () => {
     fetchProducts();
   }, [filters, pagination.currentPage]);
 
-  const fetchProducts = async () => {
+ const fetchProducts = async () => {
   try {
     setLoading(true);
     const queryParams = new URLSearchParams({
@@ -34,8 +34,11 @@ const Products = () => {
       page: pagination.currentPage,
       limit: 12
     }).toString();
-    
+
     const res = await axios.get(`/api/products?${queryParams}`);
+    
+    // Log the response for debugging
+    console.log('API Response:', res.data);
 
     // Check if the response data is in the expected format
     if (res.data && res.data.products && Array.isArray(res.data.products)) {
@@ -55,7 +58,6 @@ const Products = () => {
     setLoading(false);
   }
 };
-
   const handleFilterChange = (key, value) => {
     setFilters({ ...filters, [key]: value });
     setPagination({ ...pagination, currentPage: 1 });
@@ -153,20 +155,42 @@ const Products = () => {
             </button>
           </aside>
 
-          <div className="products-content">
-            {loading ? (
-              <div className="loading">Loading products...</div>
-            ) : products.length === 0 ? (
-              <div className="no-products">
-                <p>No products found matching your criteria.</p>
-              </div>
-            ) : (
-              <>
-                <div className="products-grid">
-                  {products.map(product => (
-                    <ProductCard key={product._id} product={product} />
-                  ))}
-                </div>
+<div className="products-content">
+  {loading ? (
+    <div className="loading">Loading products...</div>
+  ) : Array.isArray(products) && products.length > 0 ? (
+    <>
+      <div className="products-grid">
+        {products.map(product => (
+          <ProductCard key={product._id} product={product} />
+        ))}
+      </div>
+      {pagination.totalPages > 1 && (
+        <div className="pagination">
+          <button
+            onClick={() => setPagination({ ...pagination, currentPage: pagination.currentPage - 1 })}
+            disabled={pagination.currentPage === 1}
+            className="btn btn-secondary"
+          >
+            Previous
+          </button>
+          <span>Page {pagination.currentPage} of {pagination.totalPages}</span>
+          <button
+            onClick={() => setPagination({ ...pagination, currentPage: pagination.currentPage + 1 })}
+            disabled={pagination.currentPage === pagination.totalPages}
+            className="btn btn-secondary"
+          >
+            Next
+          </button>
+        </div>
+      )}
+    </>
+  ) : (
+    <div className="no-products">
+      <p>No products found matching your criteria.</p>
+    </div>
+  )}
+</div>
 
                 {pagination.totalPages > 1 && (
                   <div className="pagination">
